@@ -3,7 +3,7 @@ const express = require('express');
 const connection = require('../db-config');
 const routes = require('./routes');
 
-connection.connect((err) => {
+connection.getConnection((err) => {
   if (err) console.log('Error connecting to database', err);
   else console.log('Connected as id ' + connection.threadId);
 });
