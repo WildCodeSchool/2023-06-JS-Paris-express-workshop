@@ -1,5 +1,5 @@
 const supertest = require('supertest');
-const app = require('../src/app');
+const app = require('../src/config/server');
 const { trackToCreate, trackKeys } = require('./testsData');
 
 describe('🎧 TRACKS ROUTES', () => {

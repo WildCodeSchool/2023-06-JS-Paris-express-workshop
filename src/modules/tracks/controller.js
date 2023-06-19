@@ -1,4 +1,4 @@
-const { findAll, findById, create, updateOne, deleteOne } = require("./tracksModel");
+const { findAll, findById, create, updateOne, deleteOne } = require("./model");
 
 const getOne = (req, res) => {
   findById(req.params.id).then(([track]) => {

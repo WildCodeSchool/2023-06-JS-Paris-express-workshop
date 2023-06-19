@@ -1,4 +1,4 @@
-const {findAll, findById, findTracksByAlbumId, create, updateOne, deleteOne} = require("./albumsModel");
+const {findAll, findById, findTracksByAlbumId, create, updateOne, deleteOne} = require("./model");
 
 const getAll = (req, res) => {
   findAll().then((albums) => res.status(200).json(albums))

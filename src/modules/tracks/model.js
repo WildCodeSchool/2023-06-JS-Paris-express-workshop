@@ -1,4 +1,4 @@
-const db = require("../../../db-config");
+const db = require("../../config/database");
 
 const findAll = () => {
     return db.query("SELECT * FROM track").then(([tracks]) => tracks);

@@ -1,16 +1,15 @@
 require('dotenv').config();
-const express = require('express');
-const connection = require('../db-config');
-const routes = require('./routes');
+const app = require('./config/server');
+const db = require("./config/database");
 
-connection.getConnection((err) => {
-  if (err) console.log('Error connecting to database', err);
-  else console.log('Connected as id ' + connection.threadId);
+const PORT = process.env.PORT || 8000;
+
+db.getConnection().then(() => {
+  console.log("database connected.");
+  app.listen(PORT, (err) => {
+    // eslint-disable-next-line no-console
+    if (err) console.error(err);
+    // eslint-disable-next-line no-console
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
 });
-
-const app = express();
-app.use(express.json());
-app.use('/api', routes);
-
-// Please keep this module.exports app, we need it for the tests !
-module.exports = app;
