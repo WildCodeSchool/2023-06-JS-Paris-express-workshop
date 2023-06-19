@@ -1,5 +1,4 @@
 const { findAll, findById, create, updateOne, deleteOne, findByEmail } = require("./model");
-const {verifyPassword} = require("../../helpers/auth");
 const jwt = require("jsonwebtoken");
 
 const getOneById = (req, res) => {
@@ -18,7 +17,7 @@ const login = async (req, res) => {
         const [user] = await findByEmail(req.body.email);
         if(!user) return res.status(404).json("user not found");
 
-        const result = await verifyPassword(user.password, req.body.password);
+        const result = await argon.verify(user.password, req.body.password);
         if(result) {
             const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
             res.status(200).json({token});
