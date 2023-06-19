@@ -1,16 +1,17 @@
 const { findAll, findById, create, updateOne, deleteOne, findByEmail } = require("./model");
 const jwt = require("jsonwebtoken");
+const argon = require("argon2");
 
-const getOneById = (req, res) => {
-    findById(req.params.id).then(([user]) => {
+const getOneById = async (req, res) => {
+    try {
+        const [user] = await findById(req.params.id);
         if (!user) return res.sendStatus(404);
+
         res.status(200).json(user);
-    })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).json("error server");
-        });
-};
+    } catch (error) {
+        next(error);
+    }
+}
 
 const login = async (req, res) => {
     try {
@@ -21,61 +22,55 @@ const login = async (req, res) => {
         if(result) {
             const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
             res.status(200).json({token});
-        } else {
+        } 
+        else {
             res.status(400).json("bad credentials");
         }    
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json("error server");
+        next(error);
     }
 }
 
-const getAll = (req, res) => {
-    if (req.query.email) {
-        findByEmail(req.query.email).then(([user]) => {
-            if (!user) return res.sendStatus(404);
-            res.status(200).json(user);
-        })
-            .catch((err) => {
-                console.error(err);
-                res.status(500).json("error server");
-            });
-    } else {
-        findAll().then((users) => res.status(200).json(users))
-            .catch((err) => {
-                console.error(err);
-                res.status(500).json("error server");
-            });
+const getAll = async (req, res) => {
+    try {
+        const users = await findAll();
+        res.status(200).json(users);
+    } catch (error) {
+        next(error);
     }
-    
 };
 
-const postUsers = (req, res) => {
-    create(req.body).then((result) => res.status(201).json({ id: result.insertId, ...req.body }))
-        .catch((err) => {
-            console.error(err);
-            res.status(500).json("error server");
-        });
+const postUsers = async (req, res) => {
+    try {
+        const [result] = await create(req.body);
+        delete req.body.password;
+        delete req.body.repeat_password;
+        res.status(201).json({ id: result.insertId, ...req.body });
+    } catch (error) {
+        next(error);
+    }
 };
 
-const updateUsers = (req, res) => {
-    updateOne(req.params.id, req.body).then(() => res.sendStatus(204))
-        .catch((err) => {
-            console.error(err);
-            res.status(500).json("error server");
-        });
+const updateUsers = async (req, res) => {
+    try {
+        await updateOne(req.params.id, req.body);
+        res.sendStatus(204);
+    } catch (error) {
+        next(error)
+    }
 };
 
-const deleteUsers = (req, res) => {
-    findById(req.params.id).then(([user]) => {
+const deleteUsers = async (req, res) => {
+    try {
+        const [user] = await findById(req.params.id)
         if (!user) return res.sendStatus(404);
-        deleteOne(req.params.id).then(() => res.sendStatus(204))
-            .catch((err) => {
-                console.error(err);
-                res.status(500).json("error server");
-            });
-    })
+
+        await deleteOne(req.params.id);
+        res.sendStatus(204);
+    } catch (error) {
+        next(error)
+    }
 };
 
 module.exports = { getOneById, getAll, postUsers, updateUsers, deleteUsers, login };
